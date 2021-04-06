@@ -1,6 +1,13 @@
 const express = require('express');
 const axios = require('axios');
 
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+	windowMs: 30 * 1000, // 30s
+	max: 2, // limit each IP to 2 requests per 30s
+});
+
 const router = express.Router();
 
 const BASE_URL = 'https://api.nasa.gov/insight_weather/?';
@@ -9,7 +16,7 @@ let cachedData;
 let cacheTime;
 
 // Will be our proxy api to Nasa
-router.get('/', async (req, res, next) => {
+router.get('/', limiter, async (req, res, next) => {
 	// In memory cache
 	if (cacheTime && cacheTime > Date.now() - 30 * 1000) {
 		return res.json(cachedData);
