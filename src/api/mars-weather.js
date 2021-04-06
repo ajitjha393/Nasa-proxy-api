@@ -7,7 +7,7 @@ const BASE_URL = 'https://api.nasa.gov/insight_weather/?';
 // Will be our proxy api to Nasa
 router.get('/', (req, res) => {
 	const params = new URLSearchParams({
-		api_key: 'DEMO_KEY',
+		api_key: process.env.NASA_API_KEY,
 		feedtype: 'json',
 		ver: '1.0',
 	});
