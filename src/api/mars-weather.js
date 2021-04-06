@@ -6,11 +6,12 @@ const router = express.Router();
 const BASE_URL = 'https://api.nasa.gov/insight_weather/?';
 
 let cachedData;
-let cachedTime;
+let cacheTime;
 
 // Will be our proxy api to Nasa
 router.get('/', async (req, res, next) => {
-	if (cachedTime && cachedTime > Date.now() - 30 * 1000) {
+	// In memory cache
+	if (cacheTime && cacheTime > Date.now() - 30 * 1000) {
 		return res.json(cachedData);
 	}
 
@@ -25,7 +26,8 @@ router.get('/', async (req, res, next) => {
 
 		const { data } = await axios.get(`${BASE_URL}${params}`);
 		cachedData = data;
-		cachedTime = Date.now(); // Added Cached Timestamp
+		cacheTime = Date.now(); // Added Cached Timestamp
+		data.cacheTime = cacheTime;
 		//2. Then Respond to this req by Data received from Nasa
 
 		return res.json(data);
