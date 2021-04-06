@@ -2,10 +2,17 @@ const express = require('express');
 const axios = require('axios');
 
 const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+
+const speedLimiter = slowDown({
+	windowMs: 30 * 1000, // 30s
+	delayAfter: 1,
+	delayMs: 500,
+});
 
 const limiter = rateLimit({
 	windowMs: 30 * 1000, // 30s
-	max: 2, // limit each IP to 2 requests per 30s
+	max: 10, // limit each IP to 10 requests per 30s
 });
 
 const router = express.Router();
@@ -16,7 +23,7 @@ let cachedData;
 let cacheTime;
 
 // Will be our proxy api to Nasa
-router.get('/', limiter, async (req, res, next) => {
+router.get('/', limiter, speedLimiter, async (req, res, next) => {
 	// In memory cache
 	if (cacheTime && cacheTime > Date.now() - 30 * 1000) {
 		return res.json(cachedData);
